@@ -1,15 +1,10 @@
 #!/usr/bin/env python
 
 ########################################### Headers and Imports #################################################
-import re
-import os
-import subprocess
-import collections
-
-from pymatgen.core import Composition, periodic_table
+from pymatgen.core import Composition
 from pymatgen.entries.computed_entries import ComputedEntry
 
-from pymatgen.analysis.phase_diagram import GrandPotPDEntry, PDEntry, GrandPotentialPhaseDiagram, PDPlotter, PhaseDiagram
+from pymatgen.analysis.phase_diagram import GrandPotentialPhaseDiagram
 from pymatgen.entries.compatibility import MaterialsProject2020Compatibility
 
 
