@@ -17,7 +17,6 @@ from mp_api.client import MPRester
 from pymatgen.ext.matproj import MPRester
 
 ##################### Global Initialization Hydrogen and Oxygen Experimental Conditions ########################
-
 def initialize_global_variables():
     """
     Initializes global gas entries and chemical potentials for conditions A, C, and X.
@@ -224,7 +223,6 @@ def calculate_phase_diagram_condition_X(entriesTotal_X, entriesGases_X, locked_C
     return pd_X, energy_per_atom_X, energy_above_hull_X
 
 ############################################## Main Function ###################################################
-
 def main():
     api_key = "kzum4sPsW7GCRwtOqgDIr3zhYrfpaguK"
     TestMat_Comp = "Ba8Zr8O24"
