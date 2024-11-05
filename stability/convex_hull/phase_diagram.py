@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-########################################### Headers and Imports #################################################
+# Headers and Imports
 from pymatgen.core import Composition
 from pymatgen.entries.computed_entries import ComputedEntry
 
@@ -11,7 +11,8 @@ from pymatgen.entries.compatibility import MaterialsProject2020Compatibility
 from mp_api.client import MPRester
 from pymatgen.ext.matproj import MPRester
 
-##################### Global Initialization Hydrogen and Oxygen Experimental Conditions ########################
+
+# Global Initialization Hydrogen and Oxygen Experimental Conditions
 def initialize_global_variables():
     """
     Initializes global gas entries and chemical potentials for conditions A, C, and X.
@@ -62,7 +63,8 @@ def initialize_global_variables():
     locked_Chem_Potential_C = {'O2': O_Ener_C * 2, 'H2': H_Ener_C * 2}
     locked_Chem_Potential_X = {'X': CO2_Ener_X, 'O2': O_Ener_X * 2}
 
-############################################## Material Entry ###################################################
+
+# Material Entry
 def prepare_material_entries(api_key, TestMat_Comp, TestMat_Ener):
     """
     Prepare material entries and fetch entries from the Materials Project for a given material.
@@ -110,8 +112,9 @@ def prepare_material_entries(api_key, TestMat_Comp, TestMat_Ener):
     entriesTotal_X = entries_MP_Org_X  
     
     return all_entries_A, all_entries_C, entriesTotal_X, TestMat_entry_A, TestMat_entry_C
-    
-############################################## Condition A #####################################################
+
+
+# Condition A
 def calculate_phase_diagram_condition_A(all_entries_A, entriesGases_A, locked_Chem_Potential_A, TestMat_entry_A):
     """
     Calculate the phase diagram and energy above the hull for Condition A (Hydrogen-rich environment).
@@ -145,7 +148,8 @@ def calculate_phase_diagram_condition_A(all_entries_A, entriesGases_A, locked_Ch
 
     return pd_A, energy_per_atom_A, energy_above_hull_A
 
-############################################## Condition C #####################################################
+
+# Condition C
 def calculate_phase_diagram_condition_C(all_entries_C, entriesGases_C, locked_Chem_Potential_C, TestMat_entry_C):
     """
     Calculate the phase diagram and energy above the hull for Condition C (Oxygen-rich environment).
@@ -179,7 +183,8 @@ def calculate_phase_diagram_condition_C(all_entries_C, entriesGases_C, locked_Ch
 
     return pd_C, energy_per_atom_C, energy_above_hull_C
 
-############################################## Condition X #####################################################
+
+# Condition X
 def calculate_phase_diagram_condition_X(entriesTotal_X, entriesGases_X, locked_Chem_Potential_X, TestMat_Comp, TestMat_Ener):
     """
     Calculate the phase diagram and energy above the hull for Condition X (CO2-rich environment).
@@ -217,7 +222,8 @@ def calculate_phase_diagram_condition_X(entriesTotal_X, entriesGases_X, locked_C
 
     return pd_X, energy_per_atom_X, energy_above_hull_X
 
-############################################## Main Function ###################################################
+
+# Main Function
 def main():
     api_key = "kzum4sPsW7GCRwtOqgDIr3zhYrfpaguK"
     TestMat_Comp = "Ba8Zr8O24"
