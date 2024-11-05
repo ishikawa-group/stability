@@ -66,12 +66,14 @@ def prepare_material_entries(api_key, TestMat_Comp, TestMat_Ener):
     Prepare material entries and fetch entries from the Materials Project for a given material.
 
     Args:
-        api_key (str): API key for accessing the Materials Project database.
-        TestMat_Comp (str): Composition formula of the material.
-        TestMat_Ener (float): Energy of the material to be analyzed.
+        api_key (str): API key for the Materials Project.
+        TestMat_Comp (str): Composition of the material.
+        TestMat_Ener (float): Energy of the material.
 
     Returns:
-        tuple: Lists of combined entries for conditions A, C, and X, and the ComputedEntry objects for conditions A and C.
+        tuple: List of entries for Condition A, list of entries for Condition C, list of entries for Condition X,
+               ComputedEntry object for the material under Condition A,
+               ComputedEntry object for the material under Condition C.
     """
 
     # Define the material's composition
@@ -94,10 +96,10 @@ def prepare_material_entries(api_key, TestMat_Comp, TestMat_Ener):
     with MPRester(api_key) as api:
         entries_MP_Org_AC = api.get_entries_in_chemsys(
             elements + ['O', 'H']
-            ) 
+        )
         entries_MP_Org_X = api.get_entries_in_chemsys(
             elements + ['O', 'C']
-            )  
+        )
 
     # Process entries with the compatibility module
     entries_MP_Org_AC = compat.process_entries(entries_MP_Org_AC)
@@ -109,7 +111,7 @@ def prepare_material_entries(api_key, TestMat_Comp, TestMat_Ener):
 
     all_entries_A = entries_MP_Org_AC + entries_VASP_A
     all_entries_C = entries_MP_Org_AC + entries_VASP_C
-    entriesTotal_X = entries_MP_Org_X  
+    entriesTotal_X = entries_MP_Org_X
 
     return all_entries_A, all_entries_C, entriesTotal_X, TestMat_entry_A, TestMat_entry_C
 
@@ -124,7 +126,7 @@ def calculate_phase_diagram_condition_A(all_entries_A, entriesGases_A, locked_Ch
         entriesGases_A (list): List of ComputedEntry objects for gases under Condition A.
         locked_Chem_Potential_A (dict): Locked chemical potentials for Condition A.
         TestMat_entry_A (ComputedEntry): ComputedEntry object for the material under Condition A.
-    
+
     Returns:
         tuple: Phase diagram for Condition A, energy per atom, and energy above hull.
     """
@@ -148,6 +150,7 @@ def calculate_phase_diagram_condition_A(all_entries_A, entriesGases_A, locked_Ch
     energy_above_hull_A = pd_A.get_e_above_hull(gpe)
 
     return pd_A, energy_per_atom_A, energy_above_hull_A
+
 
 # Condition C
 def calculate_phase_diagram_condition_C(all_entries_C, entriesGases_C, locked_Chem_Potential_C, TestMat_entry_C):
