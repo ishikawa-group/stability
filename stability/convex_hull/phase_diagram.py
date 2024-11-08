@@ -83,9 +83,10 @@ def prepare_material_entries(api_key, TestMat_Comp, TestMat_Ener):
     num_O_atoms = TestMat_Comp.get_atomic_fraction('O') * TestMat_Comp.num_atoms
 
     # Define computed entries for the material under conditions A and C
-    TestMat_entry_A = ComputedEntry(TestMat_Comp, TestMat_Ener - O_Ener_A * num_O_atoms)
-    TestMat_entry_C = ComputedEntry(TestMat_Comp, TestMat_Ener - O_Ener_C * num_O_atoms)
-
+    # TestMat_entry_A = ComputedEntry(TestMat_Comp, TestMat_Ener - O_Ener_A * num_O_atoms)
+    TestMat_entry_A = ComputedEntry(TestMat_Comp, TestMat_Ener - O_Ener_A)
+    # TestMat_entry_C = ComputedEntry(TestMat_Comp, TestMat_Ener - O_Ener_C * num_O_atoms)
+    TestMat_entry_C = ComputedEntry(TestMat_Comp, TestMat_Ener - O_Ener_C)
     # Initialize compatibility module
     compat = MaterialsProject2020Compatibility()
 
@@ -209,7 +210,8 @@ def calculate_phase_diagram_condition_X(entriesTotal_X, entriesGases_X, locked_C
     all_entries_X = list(filter(lambda e: e.composition.reduced_formula not in eliminate_X, entriesTotal_X))
 
     # Create a ComputedEntry for the material under Condition X
-    TestMat_entry_X = ComputedEntry(TestMat_Comp, TestMat_Ener - O_Ener_X * TestMat_Comp.num_atoms)
+    # TestMat_entry_X = ComputedEntry(TestMat_Comp, TestMat_Ener - O_Ener_X * TestMat_Comp.num_atoms)
+    TestMat_entry_X = ComputedEntry(TestMat_Comp, TestMat_Ener - O_Ener_X)
 
     # Add back entries for Condition X
     entries_VASP_X = [TestMat_entry_X]
