@@ -22,17 +22,19 @@ initialize_global_variables()
 from stability.convex_hull.phase_diagram import (
     entriesGases_A, locked_Chem_Potential_A,
     entriesGases_C, locked_Chem_Potential_C,
-    entriesGases_X, locked_Chem_Potential_X
+    entriesGases_X, locked_Chem_Potential_X,
+
 )
 
 # Prepare material entries
 (
     all_entries_A,
     all_entries_C,
-    all_entries_X,
+    entriesTotal_X,
     TestMat_entry_A,
     TestMat_entry_C,
     TestMat_entry_X
+
 ) = prepare_material_entries(api, TestMat_Comp, TestMat_Ener)
 
 # Calculate phase diagrams and energies for each condition
@@ -41,16 +43,19 @@ pd_A, energy_per_atom_A, formation_energy_A, energy_above_hull_A = (
         all_entries_A, entriesGases_A, locked_Chem_Potential_A, TestMat_entry_A
     )
 )
+
 pd_C, energy_per_atom_C, formation_energy_C, energy_above_hull_C = (
     calculate_phase_diagram_condition_C(
         all_entries_C, entriesGases_C, locked_Chem_Potential_C, TestMat_entry_C
     )
 )
+
 pd_X, energy_per_atom_X, formation_energy_X, energy_above_hull_X = (
     calculate_phase_diagram_condition_X(
-        all_entries_X, entriesGases_X, locked_Chem_Potential_X, TestMat_entry_X
+        entriesTotal_X, entriesGases_X, locked_Chem_Potential_X, TestMat_entry_X
     )
 )
+
 
 # Print results for condition A (Hydrogen-rich)
 print("Condition A (Hydrogen-rich):")
