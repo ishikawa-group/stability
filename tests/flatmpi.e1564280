@@ -1,0 +1,21 @@
+Loading mpi version 2021.11
+Traceback (most recent call last):
+  File "/home/1/uk02411/stability/tests/test_phase_diagram.py", line 6, in <module>
+    from stability.convex_hull.phase_diagram import (
+  File "/home/1/uk02411/stability/stability/convex_hull/phase_diagram.py", line 8, in <module>
+    from mp_api.client import MPRester
+  File "/home/1/uk02411/.local/lib/python3.9/site-packages/mp_api/client/__init__.py", line 8, in <module>
+    from .mprester import MPRester
+  File "/home/1/uk02411/.local/lib/python3.9/site-packages/mp_api/client/mprester.py", line 11, in <module>
+    from emmet.core.electronic_structure import BSPathType
+  File "/home/1/uk02411/.local/lib/python3.9/site-packages/emmet/core/electronic_structure.py", line 26, in <module>
+    from emmet.core.material_property import PropertyDoc
+  File "/home/1/uk02411/.local/lib/python3.9/site-packages/emmet/core/material_property.py", line 10, in <module>
+    from emmet.core.material import PropertyOrigin
+  File "/home/1/uk02411/.local/lib/python3.9/site-packages/emmet/core/material.py", line 13, in <module>
+    from emmet.core.structure import MoleculeMetadata, StructureMetadata
+  File "/home/1/uk02411/.local/lib/python3.9/site-packages/emmet/core/structure.py", line 13, in <module>
+    from emmet.core.symmetry import PointGroupData, SymmetryData
+  File "/home/1/uk02411/.local/lib/python3.9/site-packages/emmet/core/symmetry.py", line 6, in <module>
+    from pymatgen.symmetry.analyzer import (
+ImportError: cannot import name 'SymmetryUndeterminedError' from 'pymatgen.symmetry.analyzer' (/home/1/uk02411/.local/lib/python3.9/site-packages/pymatgen/symmetry/analyzer.py)

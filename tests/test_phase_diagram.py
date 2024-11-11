@@ -12,7 +12,7 @@ from stability.convex_hull.phase_diagram import (
 )
 
 # Set test material and energy
-api = "kzum4sPsW7GCRwtOqgDIr3zhYrfpaguK"
+api = os.getenv("MAPI")
 TestMat_Comp = "Ba8Zr8O24"
 TestMat_Ener = -333.71584216
 
