@@ -5,7 +5,32 @@ import warnings
 # Ignore warnings
 warnings.filterwarnings("ignore")
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+sys.path.append("../")
+from ase.io import read
+
+cif = "../BaZrO3.cif"  # should be ~3.3 eV
+atoms = read(cif)
+atoms *= [2, 2, 2]
+
+# Set up VASP calculator with standard settings
+tmpdir = "tmpdir_convex_hull"
+atoms.calc = Vasp(prec="normal", xc="pbe", ispin=2, lorbit=10,
+                  ibrion=2, nsw=10, isif=8,
+                  encut=520, ediff=1e-6, algo="Normal", nelm=50, nelmin=5,
+                  kpts=[1, 1, 1], kgamma=True,
+                  ismear=0, sigma=0.05,
+                  lwave=False, lcharg=False,
+                  npar=4, nsim=npar,
+                  directory=tmpdir,
+                  lreal=False,
+                  )
+
+# Calculate total energy (needed for band structure calculation)
+energy = atoms.get_potential_energy()
+
+print(f"Energy: {energy} eV")
+
+quit()
 
 from stability.convex_hull.phase_diagram import (
     initialize_global_variables,
@@ -18,7 +43,8 @@ from stability.convex_hull.phase_diagram import (
 # Set test material and energy
 api = os.getenv("MAPI")
 TestMat_Comp = "Ba8Zr8O24"
-TestMat_Ener = -331.28931146  # VASP-calculated value in eV
+# TestMat_Ener = -331.28931146  # VASP-calculated value in eV
+TestMat_Ener = energy
 
 # Initialize global variables
 initialize_global_variables()

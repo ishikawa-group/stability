@@ -17,4 +17,3 @@ export VASP_PP_PATH="/home/1/uk02411/vasp/potential"
 export ASE_VASP_COMMAND="mpiexec.hydra -ppn $NCORE -n $NCORE $PRG"
 
 python test_phase_diagram.py
-
