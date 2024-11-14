@@ -57,12 +57,13 @@ def initialize_global_variables():
     ]
 
     # Define chemical potentials
-    locked_Chem_Potential_A = {'H2': H_Ener_A*2 , 'O2': O_Ener_A*2 }
-    locked_Chem_Potential_C = {'H2': H_Ener_C*2 , 'O2': O_Ener_C*2 }
-    locked_Chem_Potential_X = {'O2': O_Ener_X*2 , 'X': CO2_Ener_X}
+    locked_Chem_Potential_A = {'H2': H_Ener_A * 2, 'O2': O_Ener_A * 2}
+    locked_Chem_Potential_C = {'H2': H_Ener_C * 2, 'O2': O_Ener_C * 2}
+    locked_Chem_Potential_X = {'O2': O_Ener_X * 2, 'X': CO2_Ener_X}
     # locked_Chem_Potential_A = {'H': H_Ener_A , 'O': O_Ener_A }
     # locked_Chem_Potential_C = {'H': H_Ener_C , 'O': O_Ener_C }
     # locked_Chem_Potential_X = {'O': O_Ener_X , 'X': CO2_Ener_X}
+
 
 # Material Entry
 def prepare_material_entries(api, TestMat_Comp, TestMat_Ener):
@@ -197,6 +198,7 @@ def calculate_phase_diagram_condition_C(all_entries_C, entriesGases_C, locked_Ch
     # Calculate energy above hull
     energy_above_hull_C = pd_C.get_e_above_hull(gpe)
     #energy_above_hull_C = TestMat_entry_C.energy / 16 - pd_C.get_hull_energy_per_atom(TestMat_entry_C.composition)
+    
     return pd_C, energy_per_atom_C, formation_energy_C, energy_above_hull_C
 
 
@@ -250,19 +252,11 @@ def main():
     if len(sys.argv) < 2:
         # No command-line arguments provided; attempt to read from 'composition.txt'
         input_file = 'composition.txt'
-        if not os.path.isfile(input_file):
-            print("No compositions provided as arguments and 'composition.txt' not found.")
-            print("Usage: python phase_diagram.py 'Composition1' 'Composition2' ...")
-            sys.exit(1)
         with open(input_file, 'r') as f:
             compositions = [line.strip() for line in f if line.strip()]
     else:
         # Compositions provided as command-line arguments
         compositions = sys.argv[1:]
-
-    if not compositions:
-        print("No valid compositions found to process.")
-        sys.exit(1)
 
     # Initialize gas entries and chemical potentials
     initialize_global_variables()
