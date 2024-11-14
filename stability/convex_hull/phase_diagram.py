@@ -24,8 +24,10 @@ def initialize_global_variables():
     # Define energies for different environments
     H_Ener_A = -4.024
     O_Ener_A = -8.006
+
     H_Ener_C = -4.997
-    O_Ener_C = -6.166
+    O_Ener_C = -8.006
+
     O_Ener_X = -6.320
     CO2_Ener_X = -25.556
     CO_Ener_X = -20.232
@@ -55,9 +57,10 @@ def initialize_global_variables():
     ]
 
     # Define chemical potentials
-    locked_Chem_Potential_A = {'H': H_Ener_A, 'O': O_Ener_A}
-    locked_Chem_Potential_C = {'H': H_Ener_C, 'O': O_Ener_C}
-    locked_Chem_Potential_X = {'O': O_Ener_X, 'X': CO2_Ener_X}
+    locked_Chem_Potential_A = {"H2": H_Ener_A * 2, "O2": O_Ener_C * 2}
+    locked_Chem_Potential_C = {"H2": H_Ener_C * 2, "O2": O_Ener_C * 2}
+    # locked_Chem_Potential_C = {"O2": O_Ener_C * 2, "H2": H_Ener_C * 2}
+    locked_Chem_Potential_X = {"O": O_Ener_X, "X": CO2_Ener_X}
 
 
 # Material Entry
@@ -81,9 +84,9 @@ def prepare_material_entries(api, TestMat_Comp, TestMat_Ener):
     TestMat_Comp = Composition(TestMat_Comp)
 
     # Define computed entries for the material under conditions A, C and X
-    TestMat_entry_A = ComputedEntry(TestMat_Comp, TestMat_Ener)
-    TestMat_entry_C = ComputedEntry(TestMat_Comp, TestMat_Ener)
-    TestMat_entry_X = ComputedEntry(TestMat_Comp, TestMat_Ener)
+    TestMat_entry_A = ComputedEntry(TestMat_Comp, TestMat_Ener - O_Ener_A * TestMat_Comp["O"])
+    TestMat_entry_C = ComputedEntry(TestMat_Comp, TestMat_Ener - O_Ener_C * TestMat_Comp["O"])
+    TestMat_entry_X = ComputedEntry(TestMat_Comp, TestMat_Ener - O_Ener_X * TestMat_Comp["O"])
 
     # Initialize compatibility module
     compat = MaterialsProject2020Compatibility()
@@ -93,12 +96,8 @@ def prepare_material_entries(api, TestMat_Comp, TestMat_Ener):
 
     # Initialize MPRester to get material entries from the Materials Project
     with MPRester(api) as api:
-        entries_MP_Org_AC = api.get_entries_in_chemsys(
-            elements + ['O', 'H']
-        )
-        entries_MP_Org_X = api.get_entries_in_chemsys(
-            elements + ['O', 'C']
-        )
+        entries_MP_Org_AC = api.get_entries_in_chemsys(elements + ['O', 'H'])
+        entries_MP_Org_X = api.get_entries_in_chemsys(elements + ['O', 'C'])
 
     # Process entries with the compatibility module
     entries_MP_Org_AC = compat.process_entries(entries_MP_Org_AC)
@@ -111,7 +110,6 @@ def prepare_material_entries(api, TestMat_Comp, TestMat_Ener):
     all_entries_A = entries_MP_Org_AC + entries_VASP_A
     all_entries_C = entries_MP_Org_AC + entries_VASP_C
     entriesTotal_X = entries_MP_Org_X
-
 
     return all_entries_A, all_entries_C, entriesTotal_X, TestMat_entry_A, TestMat_entry_C, TestMat_entry_X
 
@@ -136,25 +134,20 @@ def calculate_phase_diagram_condition_A(all_entries_A, entriesGases_A, locked_Ch
 
     # Filter out these species from all_entries_A
     all_entries_A = list(filter(lambda e: e.composition.reduced_formula not in eliminate_AC, all_entries_A))
-    all_entries_A = all_entries_A + entriesGases_A
+    all_entries_A += entriesGases_A
 
     # Create phase diagram for Condition A
     pd_A = GrandPotentialPhaseDiagram(all_entries_A, locked_Chem_Potential_A)
 
-    # Calculate energy per atom
-    energy_per_atom_A = TestMat_entry_A.energy / TestMat_entry_A.composition.num_atoms
+    # One should use number of atoms without O, because O atom energy is subtracted from entry
+    num_atoms_without_O = TestMat_entry_A.composition.num_atoms - TestMat_entry_A.composition["O"]
 
-    # Get the grand potential entry
-    gpe = next((e for e in pd_A.all_entries if e.original_entry == TestMat_entry_A), None)
+    energy_per_atom_A = TestMat_entry_A.energy / num_atoms_without_O
+    hull_energy_A = pd_A.get_hull_energy(TestMat_entry_A.composition) / num_atoms_without_O
+    energy_above_hull_A = (TestMat_entry_A.energy / num_atoms_without_O
+                           - pd_A.get_hull_energy_per_atom(TestMat_entry_A.composition))
 
-    # Calculate formation energy
-    formation_energy_A= pd_A.get_form_energy_per_atom(gpe)
-
-    # Calculate energy above hull
-    energy_above_hull_A = pd_A.get_e_above_hull(gpe)
-    # energy_above_hull_A = TestMat_entry_A.energy / TestMat_entry_A.composition.num_atoms - pd_A.get_hull_energy_per_atom(TestMat_entry_A.composition)
-
-    return pd_A, energy_per_atom_A, formation_energy_A, energy_above_hull_A
+    return pd_A, energy_per_atom_A, hull_energy_A, energy_above_hull_A
 
 
 # Condition C
@@ -177,25 +170,20 @@ def calculate_phase_diagram_condition_C(all_entries_C, entriesGases_C, locked_Ch
 
     # Filter out these species from all_entries_C
     all_entries_C = list(filter(lambda e: e.composition.reduced_formula not in eliminate_AC, all_entries_C))
-    all_entries_C = all_entries_C + entriesGases_C
+    all_entries_C += entriesGases_C
 
     # Create phase diagram for Condition C
     pd_C = GrandPotentialPhaseDiagram(all_entries_C, locked_Chem_Potential_C)
 
-    # Calculate energy per atom
-    energy_per_atom_C = TestMat_entry_C.energy / TestMat_entry_C.composition.num_atoms
+    # One should use number of atoms without O, because O atom energy is subtracted from entry
+    num_atoms_without_O = TestMat_entry_C.composition.num_atoms - TestMat_entry_C.composition["O"]
 
-    # Get the grand potential entry
-    gpe = next((e for e in pd_C.all_entries if e.original_entry == TestMat_entry_C), None)
+    energy_per_atom_C = TestMat_entry_C.energy / num_atoms_without_O
+    hull_energy_C = pd_C.get_hull_energy(TestMat_entry_C.composition) / num_atoms_without_O
+    energy_above_hull_C = (TestMat_entry_C.energy / num_atoms_without_O
+                           - pd_C.get_hull_energy_per_atom(TestMat_entry_C.composition))
 
-    # Calculate formation energy
-    formation_energy_C = pd_C.get_form_energy_per_atom(gpe)
-
-    # Calculate energy above hull
-    energy_above_hull_C = pd_C.get_e_above_hull(gpe)
-    # energy_above_hull_C = TestMat_entry_C.energy / 16 - pd_C.get_hull_energy_per_atom(TestMat_entry_C.composition)
-
-    return pd_C, energy_per_atom_C, formation_energy_C, energy_above_hull_C
+    return pd_C, energy_per_atom_C, hull_energy_C, energy_above_hull_C
 
 
 # Condition X
@@ -204,40 +192,32 @@ def calculate_phase_diagram_condition_X(entriesTotal_X, entriesGases_X, locked_C
     Calculate the phase diagram and energy above the hull for Condition X (CO2-rich environment).
 
     Args:
-        all_entries_X (list): List of ComputedEntry objects for Condition X.
+        entriesTotal_X (list): List of ComputedEntry objects for Condition X.
         entriesGases_X (list): List of ComputedEntry objects for gases under Condition X.
         locked_Chem_Potential_X (dict): Locked chemical potentials for Condition X.
         TestMat_entry_X (ComputedEntry): ComputedEntry object for the material under Condition X.
-        entriesTotal_X (list): List of ComputedEntry objects for Condition X.
-        
+
     Returns:
         tuple: Phase diagram for Condition X, energy per atom, formation energy, and energy above hull.
     """
 
     # Filter out CO, X, and O2 from entriesTotal_X
     eliminate_X = ['CO', 'X', 'O2']
-
-    # Filter out these species from entriesTotal_X
     all_entries_X = list(filter(lambda e: e.composition.reduced_formula not in eliminate_X, entriesTotal_X))
 
     # Add back entries for Condition X
     entries_VASP_X = [TestMat_entry_X]
-    all_entries_X = all_entries_X + entries_VASP_X + entriesGases_X
+    all_entries_X += entries_VASP_X + entriesGases_X
 
     # Create phase diagram for Condition X
     pd_X = GrandPotentialPhaseDiagram(all_entries_X, locked_Chem_Potential_X)
 
-    # Calculate energy per atom
-    energy_per_atom_X = TestMat_entry_X.energy / TestMat_entry_X.composition.num_atoms
+    # One should use number of atoms without O, because O atom energy is subtracted from entry
+    num_atoms_without_O = TestMat_entry_X.composition.num_atoms - TestMat_entry_X.composition["O"]
 
-    # Get the grand potential entry
-    gpe = next((e for e in pd_X.all_entries if e.original_entry == TestMat_entry_X), None)
+    energy_per_atom_X = TestMat_entry_X.energy / num_atoms_without_O
+    hull_energy_X = pd_X.get_hull_energy(TestMat_entry_X.composition) / num_atoms_without_O
+    energy_above_hull_X = (TestMat_entry_X.energy / num_atoms_without_O
+                           - pd_X.get_hull_energy_per_atom(TestMat_entry_C.composition))
 
-    # Calculate formation energy
-    formation_energy_X = pd_X.get_form_energy_per_atom(gpe)
-
-    # Calculate energy above hull
-    energy_above_hull_X = pd_X.get_e_above_hull(gpe)
-    # energy_above_hull_X = TestMat_entry_X.energy / TestMat_entry_X.composition.num_atoms - pd_X.get_hull_energy_per_atom(TestMat_entry_X.composition)
-
-    return pd_X, energy_per_atom_X, formation_energy_X, energy_above_hull_X
+    return pd_X, energy_per_atom_X, hull_energy_X, energy_above_hull_X
