@@ -270,7 +270,9 @@ def main():
         TestMat_Comp = comp_str
 
         # Placeholder for TestMat_Ener; replace with actual energy value or a method to obtain it
-        TestMat_Ener = -334.17059441
+        TestMat_Ener = -334.17059441 # Ba8Zr8O24
+        # TestMat_Ener = -251.41021058 # Ba8Co8O24
+        # TestMat_Ener = -268.01045909 # Ba8Fe8O24
 
         print(f"\nProcessing composition: {comp_str}")
 
