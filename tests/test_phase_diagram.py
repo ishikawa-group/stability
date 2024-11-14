@@ -7,8 +7,9 @@ warnings.filterwarnings("ignore")
 
 sys.path.append("../")
 from ase.io import read
+from ase.calculators.vasp import Vasp
 
-cif = "../BaZrO3.cif"  # should be ~3.3 eV
+cif = "BaZrO3.cif"
 atoms = read(cif)
 atoms *= [2, 2, 2]
 
@@ -17,10 +18,10 @@ tmpdir = "tmpdir_convex_hull"
 atoms.calc = Vasp(prec="normal", xc="pbe", ispin=2, lorbit=10,
                   ibrion=2, nsw=10, isif=8,
                   encut=520, ediff=1e-6, algo="Normal", nelm=50, nelmin=5,
-                  kpts=[1, 1, 1], kgamma=True,
+                  kpts=[4, 4, 4], kgamma=True,
                   ismear=0, sigma=0.05,
                   lwave=False, lcharg=False,
-                  npar=4, nsim=npar,
+                  npar=4, nsim=4,
                   directory=tmpdir,
                   lreal=False,
                   )
