@@ -26,7 +26,7 @@ def initialize_global_variables():
     O_Ener_A = -8.006
     H_Ener_C = -4.997
     O_Ener_C = -6.166
-    O_Ener_X = -6.166
+    O_Ener_X = -6.320
     CO2_Ener_X = -25.556
     CO_Ener_X = -20.232
 
