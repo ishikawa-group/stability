@@ -1,4 +1,4 @@
-def get_convex_hull(atoms=None):
+def get_convex_hull(atoms=None, energy=None):
     import sys
     import os
     import warnings
@@ -18,8 +18,8 @@ def get_convex_hull(atoms=None):
 
     # Set test material and energy
     api = os.getenv("MAPI")
-    TestMat_Comp = "Ba8Zr8O24"
-    TestMat_Ener = -331.28931146  # VASP-calculated value in eV
+    TestMat_Comp = atoms.get_chemical_formula()  # "Ba8Zr8O24"
+    TestMat_Ener = energy  # -331.28931146  # VASP-calculated value in eV
 
     # Initialize global variables
     initialize_global_variables()

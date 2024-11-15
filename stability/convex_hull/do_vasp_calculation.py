@@ -18,7 +18,7 @@ def do_vasp_calculation(atoms=None):
                       )
 
     # Calculate total energy (needed for band structure calculation)
-    energy = atoms.get_potential_energy()
+    energy = atoms_.get_potential_energy()
 
     print(f"Energy: {energy} eV")
 
