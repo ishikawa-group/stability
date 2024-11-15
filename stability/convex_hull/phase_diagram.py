@@ -26,7 +26,7 @@ def initialize_global_variables():
     O_Ener_A = -8.006
 
     H_Ener_C = -4.997
-    O_Ener_C = -6.166
+    O_Ener_C = -8.006
 
     O_Ener_X = -6.320
     CO2_Ener_X = -25.556
@@ -57,7 +57,7 @@ def initialize_global_variables():
     ]
 
     # Define chemical potentials -- atomic chemical potential is correct?
-    locked_Chem_Potential_A = {"H2": H_Ener_A * 2, "O2": O_Ener_C * 2}
+    locked_Chem_Potential_A = {"H2": H_Ener_A * 2, "O2": O_Ener_A * 2}
     locked_Chem_Potential_C = {"H2": H_Ener_C * 2, "O2": O_Ener_C * 2}
     locked_Chem_Potential_X = {"O2": O_Ener_X * 2, "X": CO2_Ener_X}
 

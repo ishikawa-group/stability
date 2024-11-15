@@ -19,4 +19,7 @@ do_vasp = False
 if do_vasp:
     do_vasp_calculation(atoms=bulk)
 
-get_convex_hull(atoms=bulk, energy=-333.78748451)
+# energy = -333.78748451
+energy = -331.28931146
+get_convex_hull(atoms=bulk, energy=energy)
+

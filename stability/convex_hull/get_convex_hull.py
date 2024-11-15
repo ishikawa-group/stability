@@ -20,6 +20,8 @@ def get_convex_hull(atoms=None, energy=None):
     api = os.getenv("MAPI")
     TestMat_Comp = atoms.get_chemical_formula()  # "Ba8Zr8O24"
     TestMat_Ener = energy  # -331.28931146  # VASP-calculated value in eV
+    print(f"TestMat_Comp: {TestMat_Comp}")
+    print(f"TestMat_Ener: {TestMat_Ener:8.6f}")
 
     # Initialize global variables
     initialize_global_variables()
@@ -56,22 +58,22 @@ def get_convex_hull(atoms=None, energy=None):
 
     # Print results for condition A (Hydrogen-rich)
     print("Condition A (Hydrogen-rich):")
-    print(f"Energy per atom: {energy_per_atom_A:5.3f} eV/atom")
-    print(f"Hull energy per_atom: {hull_energy_A:5.3f} eV/atom")
-    print(f"Energy above hull per atom: {energy_above_hull_A:5.3f} eV/atom")
+    print(f"Energy per atom: {energy_per_atom_A:6.4f} eV/atom")
+    print(f"Hull energy per_atom: {hull_energy_A:6.4f} eV/atom")
+    print(f"Energy above hull per atom: {energy_above_hull_A:6.4f} eV/atom")
 
     # Print results for condition C (Oxygen-rich)
     print("\nCondition C (Oxygen-rich):")
-    print(f"Energy per atom: {energy_per_atom_C:5.3f} eV/atom")
-    print(f"Hull energy per_atom: {hull_energy_C:5.3f} eV/atom")
-    print(f"Energy above hull per atom: {energy_above_hull_C:5.3f} eV/atom")
+    print(f"Energy per atom: {energy_per_atom_C:6.4f} eV/atom")
+    print(f"Hull energy per_atom: {hull_energy_C:6.4f} eV/atom")
+    print(f"Energy above hull per atom: {energy_above_hull_C:6.4f} eV/atom")
 
     """
     # Print results for condition X (CO2-rich)
     print("\nCondition X (CO2-rich):")
-    print(f"Energy per atom: {energy_per_atom_X:5.3f} eV/atom")
-    print(f"Hull energy per_atom: {hull_energy_X:5.3f} eV/atom")
-    print(f"Energy above hull per atom: {energy_above_hull_X:5.3f} eV/atom")
+    print(f"Energy per atom: {energy_per_atom_X:6.4f} eV/atom")
+    print(f"Hull energy per_atom: {hull_energy_X:6.4f} eV/atom")
+    print(f"Energy above hull per atom: {energy_above_hull_X:6.4f} eV/atom")
     """
 
     return None
