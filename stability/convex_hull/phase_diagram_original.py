@@ -474,7 +474,7 @@ all_entries_X = all_entries_X + entries_VASP_X + entriesGases_X
 # --- Calculate Convex Hull under Environmental Conditions ---
 
 # Locked chemical potentials for condition X
-locked_Chem_Potential_X = {'X': CO2_Ener_X,'O2': O_Ener_X*2}
+locked_Chem_Potential_X = {'X': CO2_Ener_X, 'O2': O_Ener_X*2}
 # print("Chemical potential for condition X:", locked_Chem_Potential_X)
 # print("entriesGases_X: ", " | ".join(str(entry) for entry in entriesGases_X))
 pd_X = GrandPotentialPhaseDiagram(all_entries_X, locked_Chem_Potential_X)

@@ -26,7 +26,7 @@ def initialize_global_variables():
     O_Ener_A = -8.006
 
     H_Ener_C = -4.997
-    O_Ener_C = -8.006
+    O_Ener_C = -6.166
 
     O_Ener_X = -6.320
     CO2_Ener_X = -25.556
@@ -56,11 +56,10 @@ def initialize_global_variables():
         ComputedEntry(CO2_Comp, CO2_Ener_X)
     ]
 
-    # Define chemical potentials
+    # Define chemical potentials -- atomic chemical potential is correct?
     locked_Chem_Potential_A = {"H2": H_Ener_A * 2, "O2": O_Ener_C * 2}
     locked_Chem_Potential_C = {"H2": H_Ener_C * 2, "O2": O_Ener_C * 2}
-    # locked_Chem_Potential_C = {"O2": O_Ener_C * 2, "H2": H_Ener_C * 2}
-    locked_Chem_Potential_X = {"O": O_Ener_X, "X": CO2_Ener_X}
+    locked_Chem_Potential_X = {"O2": O_Ener_X * 2, "X": CO2_Ener_X}
 
 
 # Material Entry
@@ -84,6 +83,7 @@ def prepare_material_entries(api, TestMat_Comp, TestMat_Ener):
     TestMat_Comp = Composition(TestMat_Comp)
 
     # Define computed entries for the material under conditions A, C and X
+    # Number of oxygen atom is subtracted
     TestMat_entry_A = ComputedEntry(TestMat_Comp, TestMat_Ener - O_Ener_A * TestMat_Comp["O"])
     TestMat_entry_C = ComputedEntry(TestMat_Comp, TestMat_Ener - O_Ener_C * TestMat_Comp["O"])
     TestMat_entry_X = ComputedEntry(TestMat_Comp, TestMat_Ener - O_Ener_X * TestMat_Comp["O"])
@@ -147,6 +147,12 @@ def calculate_phase_diagram_condition_A(all_entries_A, entriesGases_A, locked_Ch
     energy_above_hull_A = (TestMat_entry_A.energy / num_atoms_without_O
                            - pd_A.get_hull_energy_per_atom(TestMat_entry_A.composition))
 
+    # --- Yang-kun's version
+    # energy_per_atom_A = TestMat_entry_A.energy / num_atoms_without_O
+    # gpe = next((e for e in pd_A.all_entries if e.original_entry == TestMat_entry_A), None)
+    # formation_energy_A = pd_A.get_form_energy_per_atom(gpe)
+    # energy_above_hull_A = pd_A.get_e_above_hull(gpe)
+
     return pd_A, energy_per_atom_A, hull_energy_A, energy_above_hull_A
 
 
@@ -200,6 +206,8 @@ def calculate_phase_diagram_condition_X(entriesTotal_X, entriesGases_X, locked_C
     Returns:
         tuple: Phase diagram for Condition X, energy per atom, formation energy, and energy above hull.
     """
+
+    # TODO: We need to split materials by using "split_composition.sh".
 
     # Filter out CO, X, and O2 from entriesTotal_X
     eliminate_X = ['CO', 'X', 'O2']
