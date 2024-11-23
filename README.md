@@ -2,7 +2,8 @@
 * Assemble of codes related to the stability analysis.
 
 ## convex_hull
-* Given the material composition and the total (internal) energy, following properties are calculated.
+* Given the material composition and the total (internal) energy, 
+  following properties are calculated.
   1. formation energy
   2. energy above the convex hull
 

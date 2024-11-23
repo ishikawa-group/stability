@@ -14,11 +14,10 @@ from stability.convex_hull.get_convex_hull import get_convex_hull
 bulk = read("BaZrO3.cif")
 bulk = bulk*[2, 2, 2]
 
-do_vasp = True
+do_vasp = False
 
 if do_vasp:
     do_vasp_calculation(atoms=bulk)
 
-# energy = -333.78748451
-# get_convex_hull(atoms=bulk, energy=energy)
-
+energy = -333.78748451
+get_convex_hull(atoms=bulk, energy=energy)
