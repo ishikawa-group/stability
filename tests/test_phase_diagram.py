@@ -19,5 +19,7 @@ do_vasp = False
 if do_vasp:
     do_vasp_calculation(atoms=bulk)
 
-energy = -333.78748451
-get_convex_hull(atoms=bulk, energy=energy)
+energy = -333.78748451  # -333.820839  # vasp-calculated energy
+e_above_hull_A, e_above_hull_C = get_energy_above_hull(atoms=bulk, energy=energy)
+
+print(f"energy above hull at anode/cathode conditions (per atom, eV): {e_above_hull_A:5.3f},{e_above_hull_C:5.3f}")
