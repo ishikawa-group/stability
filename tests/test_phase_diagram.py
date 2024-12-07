@@ -9,7 +9,7 @@ warnings.filterwarnings("ignore")
 from ase.io import read
 
 from stability.convex_hull.do_vasp_calculation import do_vasp_calculation
-from stability.convex_hull.get_convex_hull import get_convex_hull
+from stability.convex_hull.get_energy_above_hull import get_energy_above_hull
 
 bulk = read("BaZrO3.cif")
 bulk = bulk*[2, 2, 2]
