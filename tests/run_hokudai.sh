@@ -12,10 +12,9 @@ NUM_PROCS=`expr $NUM_NODES "*" $NUM_CORES`
 
 module load intel
 
-# vasp_script="${HOME}/ase/run_vasp.py"
-# PRG="${HOME}/vasp/vasp.6.4.3/bin/vasp_std"
-# echo "import os" > $vasp_script
-# echo "exitcode = os.system(\"mpirun -np ${NUM_PROCS} ${PRG}\")" >> $vasp_script
+PRG="${HOME}/vasp/vasp.6.4.3/bin/vasp_std"
+export VASP_PP_PATH="${HOME}/vasp/potentials/"
+export ASE_VASP_COMMAND="mpiexec.hydra -n ${NUM_PROCS} ${PRG}"
 
 python test_phase_diagram.py
 
