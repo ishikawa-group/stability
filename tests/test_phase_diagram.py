@@ -11,8 +11,8 @@ from ase.io import read
 from stability.convex_hull.do_vasp_calculation import do_vasp_calculation
 from stability.convex_hull.get_energy_above_hull import get_energy_above_hull
 
-bulk = read("Ba8Zr8O24.POSCAR")
-# bulk = read("Ba2Sr6Zr8O24.POSCAR")
+# bulk = read("Ba8Zr8O24.POSCAR")
+bulk = read("Ba2Sr6Zr8O24.POSCAR")
 # bulk = read("Ba4Sr4Zn7Ce1O24.POSCAR")
 # bulk = read("Ba4Sr4Zr2Al6O24.POSCAR")
 
@@ -24,8 +24,8 @@ if do_vasp:
     do_vasp_calculation(atoms=bulk)
 
 # -- energy values from author's CSV file (raw energy)
-energy = -333.820839   # Ba8 Zr8 O24,
-# energy = -331.97628    # Ba2 Sr6 Zr8 O24
+# energy = -333.820839   # Ba8 Zr8 O24,
+energy = -331.97628    # Ba2 Sr6 Zr8 O24
 # energy = -212.11205    # Ba4 Sr4 Zn7 Ce1 O24
 # energy = -281.23813    # Ba4 Sr4 Zr2 Al6 O24
 
