@@ -1,36 +1,37 @@
 #!/usr/bin/env python
 
 # Headers and Imports
-from pymatgen.core import Composition
+from pymatgen.core import Composition, Element, periodic_table
 from pymatgen.entries.computed_entries import ComputedEntry
 from pymatgen.analysis.phase_diagram import GrandPotentialPhaseDiagram
 from pymatgen.entries.compatibility import MaterialsProject2020Compatibility
 from mp_api.client import MPRester
 
 
-# Global Initialization Hydrogen and Oxygen Experimental Conditions
 def initialize_global_variables():
     """
     Initializes global gas entries and chemical potentials for conditions A, C, and X.
     This function sets up the required parameters for each environment (A, C, and X) by
     defining energies, compositions, and entries for relevant gases.
     """
-
-    global H_Ener_A, O_Ener_A, H_Ener_C, O_Ener_C, O_Ener_X, CO2_Ener_X, CO_Ener_X
+    global H_energy_A, O_energy_A, H_energy_C, O_energy_C, O_energy_X, CO2_energy_X, CO_energy_X
     global H2_Comp, O2_Comp, H2O_Comp, CO_Comp, CO2_Comp
-    global entriesGases_A, entriesGases_C, entriesGases_X
-    global locked_Chem_Potential_A, locked_Chem_Potential_C, locked_Chem_Potential_X
+    global gas_entries_A, gas_entries_C, gas_entries_X
+    global chempot_A, chempot_C, chempot_X
 
     # Define energies for different environments
-    H_Ener_A = -4.024
-    O_Ener_A = -8.006
+    H_energy_A = -4.024
+    O_energy_A = -8.006
 
-    H_Ener_C = -4.997
-    O_Ener_C = -8.006
+    H_energy_C = -4.997
+    O_energy_C = -6.166
 
-    O_Ener_X = -6.320
-    CO2_Ener_X = -25.556
-    CO_Ener_X = -20.232
+    O_energy_X = -8.006
+    CO2_energy_X = -24.388
+    CO_energy_X = -20.232
+
+    # Define dummy species for X
+    X = periodic_table.DummySpecie('X')
 
     # Define compositions for gases
     H2_Comp = Composition("H2")
@@ -40,37 +41,36 @@ def initialize_global_variables():
     CO2_Comp = Composition("X")
 
     # Define entries for each condition
-    entriesGases_A = [
-        ComputedEntry(H2_Comp, H_Ener_A * H2_Comp.num_atoms),
-        ComputedEntry(O2_Comp, O_Ener_A * O2_Comp.num_atoms),
-        ComputedEntry(H2O_Comp, H_Ener_A * H2_Comp.num_atoms + O_Ener_A * 0.5 * O2_Comp.num_atoms)
+    gas_entries_A = [
+        ComputedEntry(H2_Comp, H_energy_A * H2_Comp.num_atoms),
+        ComputedEntry(O2_Comp, O_energy_A * O2_Comp.num_atoms),
+        ComputedEntry(H2O_Comp, H_energy_A * H2_Comp.num_atoms + O_energy_A * 0.5 * O2_Comp.num_atoms)
     ]
-    entriesGases_C = [
-        ComputedEntry(H2_Comp, H_Ener_C * H2_Comp.num_atoms),
-        ComputedEntry(O2_Comp, O_Ener_C * O2_Comp.num_atoms),
-        ComputedEntry(H2O_Comp, H_Ener_C * H2_Comp.num_atoms + O_Ener_C * 0.5 * O2_Comp.num_atoms)
+    gas_entries_C = [
+        ComputedEntry(H2_Comp, H_energy_C * H2_Comp.num_atoms),
+        ComputedEntry(O2_Comp, O_energy_C * O2_Comp.num_atoms),
+        ComputedEntry(H2O_Comp, H_energy_C * H2_Comp.num_atoms + O_energy_C * 0.5 * O2_Comp.num_atoms)
     ]
-    entriesGases_X = [
-        ComputedEntry(O2_Comp, O_Ener_X * O2_Comp.num_atoms),
-        ComputedEntry(CO_Comp, CO_Ener_X),
-        ComputedEntry(CO2_Comp, CO2_Ener_X)
+    gas_entries_X = [
+        ComputedEntry(O2_Comp, O_energy_X * O2_Comp.num_atoms),
+        ComputedEntry(CO_Comp, CO_energy_X),
+        ComputedEntry(CO2_Comp, CO2_energy_X)
     ]
 
-    # Define chemical potentials -- atomic chemical potential is correct?
-    locked_Chem_Potential_A = {"H2": H_Ener_A * 2, "O2": O_Ener_A * 2}
-    locked_Chem_Potential_C = {"H2": H_Ener_C * 2, "O2": O_Ener_C * 2}
-    locked_Chem_Potential_X = {"O2": O_Ener_X * 2, "X": CO2_Ener_X}
+    chempot_A = {"H": H_energy_A, "O": O_energy_A}
+    chempot_C = {"H": H_energy_C, "O": O_energy_C}
+    # chempot_X = {"X": CO2_energy_X, "O2": O_energy_X*2}
+    chempot_X = {"X": CO2_energy_X, "O": O_energy_X}
 
 
-# Material Entry
-def prepare_material_entries(api, TestMat_Comp, TestMat_Ener):
+def prepare_material_entries(api, input_comp, input_energy):
     """
     Prepare material entries and fetch entries from the Materials Project for a given material.
 
     Args:
         api: API key for the Materials Project.
-        TestMat_Comp (str): Composition of the material.
-        TestMat_Ener (float): Energy of the material.
+        input_comp (str): Composition of the material.
+        input_energy (float): Energy of the material.
 
     Returns:
         tuple: List of entries for Condition A, list of entries for Condition C, list of entries for Condition X,
@@ -78,154 +78,339 @@ def prepare_material_entries(api, TestMat_Comp, TestMat_Ener):
                ComputedEntry object for the material under Condition C,
                ComputedEntry object for the material under Condition X.
     """
-
     # Define the material's composition
-    TestMat_Comp = Composition(TestMat_Comp)
+    input_comp = Composition(input_comp)
+
+    # empirical correction for O atom; see SI S2.2 in the paper
+    input_energy += -0.687 * input_comp["O"]
 
     # Define computed entries for the material under conditions A, C and X
-    # Number of oxygen atom is subtracted
-    TestMat_entry_A = ComputedEntry(TestMat_Comp, TestMat_Ener - O_Ener_A * TestMat_Comp["O"])
-    TestMat_entry_C = ComputedEntry(TestMat_Comp, TestMat_Ener - O_Ener_C * TestMat_Comp["O"])
-    TestMat_entry_X = ComputedEntry(TestMat_Comp, TestMat_Ener - O_Ener_X * TestMat_Comp["O"])
+    energy_A = input_energy - O_energy_A * input_comp["O"]
+    energy_C = input_energy - O_energy_C * input_comp["O"]
+    energy_X = input_energy - O_energy_X * input_comp["O"]
+
+    input_A = ComputedEntry(input_comp, energy_A)
+    input_C = ComputedEntry(input_comp, energy_C)
+    input_X = ComputedEntry(input_comp, energy_X)
 
     # Initialize compatibility module
     compat = MaterialsProject2020Compatibility()
 
-    # Automatically extract elements in TestMat_Comp
-    elements = [str(element) for element in TestMat_Comp.elements]
+    # Automatically extract elements in test_mat_comp
+    elements = [str(element) for element in input_comp.elements]
 
     # Initialize MPRester to get material entries from the Materials Project
     with MPRester(api) as api:
-        entries_MP_Org_AC = api.get_entries_in_chemsys(elements + ['O', 'H'])
-        entries_MP_Org_X = api.get_entries_in_chemsys(elements + ['O', 'C'])
+        entries_MP_Org_AC = api.get_entries_in_chemsys(elements + ["O", "H"])
+        entries_MP_Org_X  = api.get_entries_in_chemsys(elements + ["O", "C"])
 
     # Process entries with the compatibility module
     entries_MP_Org_AC = compat.process_entries(entries_MP_Org_AC)
-    entries_MP_Org_X = compat.process_entries(entries_MP_Org_X)
+    entries_MP_Org_X  = compat.process_entries(entries_MP_Org_X)
 
     # Combine the fetched entries with the VASP computed entries for Conditions A and C
-    entries_VASP_A = [TestMat_entry_A]
-    entries_VASP_C = [TestMat_entry_C]
+    entries_VASP_A = [input_A]
+    entries_VASP_C = [input_C]
 
     all_entries_A = entries_MP_Org_AC + entries_VASP_A
     all_entries_C = entries_MP_Org_AC + entries_VASP_C
-    entriesTotal_X = entries_MP_Org_X
+    all_entries_X = entries_MP_Org_X
 
-    return all_entries_A, all_entries_C, entriesTotal_X, TestMat_entry_A, TestMat_entry_C, TestMat_entry_X
+    return all_entries_A, all_entries_C, all_entries_X, input_A, input_C, input_X
 
 
-# Condition A
-def calculate_phase_diagram_condition_A(all_entries_A, entriesGases_A, locked_Chem_Potential_A, TestMat_entry_A):
+def calculate_phase_diagram_condition(all_entries, gas_entries, chempot, input_entry):
     """
     Calculate the phase diagram and energy above the hull for Condition A (Hydrogen-rich environment).
 
     Args:
-        all_entries_A (list): List of ComputedEntry objects for Condition A.
-        entriesGases_A (list): List of ComputedEntry objects for gases under Condition A.
-        locked_Chem_Potential_A (dict): Locked chemical potentials for Condition A.
-        TestMat_entry_A (ComputedEntry): ComputedEntry object for the material under Condition A.
+        all_entries (list): List of ComputedEntry objects for Condition.
+        gas_entries (list): List of ComputedEntry objects for gases under Condition.
+        chempot (dict): Locked chemical potentials for Condition.
+        input_entry (ComputedEntry): ComputedEntry object for the material under Condition.
 
     Returns:
         tuple: Phase diagram for Condition A, energy per atom, formation energy, and energy above hull.
     """
-
     # Define species to eliminate
-    eliminate_AC = ['H2', 'O2', 'H2O']
+    eliminate_AC = ["H2", "O2", "H2O"]
 
     # Filter out these species from all_entries_A
-    all_entries_A = list(filter(lambda e: e.composition.reduced_formula not in eliminate_AC, all_entries_A))
-    all_entries_A += entriesGases_A
+    all_entries = list(filter(lambda e: e.composition.reduced_formula not in eliminate_AC, all_entries))
+    all_entries += gas_entries
 
-    # Create phase diagram for Condition A
-    pd_A = GrandPotentialPhaseDiagram(all_entries_A, locked_Chem_Potential_A)
+    pd = GrandPotentialPhaseDiagram(all_entries, chempot)
 
-    # One should use number of atoms without O, because O atom energy is subtracted from entry
-    num_atoms_without_O = TestMat_entry_A.composition.num_atoms - TestMat_entry_A.composition["O"]
+    num_O = input_entry.composition["O"]
+    num_wo_O = input_entry.composition.num_atoms - num_O
 
-    energy_per_atom_A = TestMat_entry_A.energy / num_atoms_without_O
-    hull_energy_A = pd_A.get_hull_energy(TestMat_entry_A.composition) / num_atoms_without_O
-    energy_above_hull_A = (TestMat_entry_A.energy / num_atoms_without_O
-                           - pd_A.get_hull_energy_per_atom(TestMat_entry_A.composition))
+    comp = Composition({el: input_entry.composition[el]
+                        for el in input_entry.composition.elements if el != Element("O")})
 
-    # --- Yang-kun's version
-    # energy_per_atom_A = TestMat_entry_A.energy / num_atoms_without_O
-    # gpe = next((e for e in pd_A.all_entries if e.original_entry == TestMat_entry_A), None)
-    # formation_energy_A = pd_A.get_form_energy_per_atom(gpe)
-    # energy_above_hull_A = pd_A.get_e_above_hull(gpe)
+    input_wo_O = ComputedEntry(comp, input_entry.energy + chempot["O"] * num_O)
 
-    return pd_A, energy_per_atom_A, hull_energy_A, energy_above_hull_A
+    e_per_atom = input_entry.energy / input_entry.composition.num_atoms
+    e_hull = pd.get_hull_energy(input_wo_O.composition)
+    e_hull_per_atom = pd.get_hull_energy_per_atom(input_wo_O.composition)
+    e_above_hull_per_atom = input_entry.energy / num_wo_O - e_hull_per_atom
+
+    return pd, e_per_atom, e_hull, e_hull_per_atom, e_above_hull_per_atom
 
 
-# Condition C
-def calculate_phase_diagram_condition_C(all_entries_C, entriesGases_C, locked_Chem_Potential_C, TestMat_entry_C):
-    """
-    Calculate the phase diagram and energy above the hull for Condition C (Oxygen-rich environment).
+def calculate_phase_diagram_condition_X(all_entries=None, gas_entries=None, chempot=None, input_entry=None):
+    import re
+    import os
+    import subprocess
+    import collections
+    import warnings
+    import pathlib
 
-    Args:
-        all_entries_C (list): List of ComputedEntry objects for Condition C.
-        entriesGases_C (list): List of ComputedEntry objects for gases under Condition C.
-        locked_Chem_Potential_C (dict): Locked chemical potentials for Condition C.
-        TestMat_entry_C (ComputedEntry): ComputedEntry object for the material under Condition C.
+    # Ignore warnings
+    warnings.filterwarnings("ignore")
 
-    Returns:
-        tuple: Phase diagram for Condition C, energy per atom, formation energy, and energy above hull.
-    """
+    from pymatgen.core import Composition, periodic_table
+    from pymatgen.entries.computed_entries import ComputedEntry
+    from pymatgen.analysis.phase_diagram import GrandPotPDEntry, PDEntry, PDPlotter, PhaseDiagram
+    from pymatgen.entries.compatibility import MaterialsProject2020Compatibility
 
-    # Define species to eliminate
-    eliminate_AC = ['H2', 'O2', 'H2O']
+    # Modify composition to account for CO2 (as X)
+    split_composition = pathlib.Path("../stability/convex_hull/split_composition.sh")
 
-    # Filter out these species from all_entries_C
-    all_entries_C = list(filter(lambda e: e.composition.reduced_formula not in eliminate_AC, all_entries_C))
-    all_entries_C += entriesGases_C
+    for j in range(0, len(all_entries)):
+        CurrentEntry = all_entries[j]
+        get_Composition = CurrentEntry.composition
 
-    # Create phase diagram for Condition C
-    pd_C = GrandPotentialPhaseDiagram(all_entries_C, locked_Chem_Potential_C)
+        # Modify composition text
+        with open('composition.txt', 'w') as out_file:
+            originalLine = str(get_Composition)
+            fixedLine1 = originalLine.replace('\n', 'Ba8Zr8O24')
+            fixedLine2 = re.sub("[A-Za-z]+", lambda ele: " " + ele[0] + " ", fixedLine1)
+            print(fixedLine2, file=out_file)
 
-    # One should use number of atoms without O, because O atom energy is subtracted from entry
-    num_atoms_without_O = TestMat_entry_C.composition.num_atoms - TestMat_entry_C.composition["O"]
+        # Execute external script to split composition
+        subprocess.run(split_composition)
 
-    energy_per_atom_C = TestMat_entry_C.energy / num_atoms_without_O
-    hull_energy_C = pd_C.get_hull_energy(TestMat_entry_C.composition) / num_atoms_without_O
-    energy_above_hull_C = (TestMat_entry_C.energy / num_atoms_without_O
-                           - pd_C.get_hull_energy_per_atom(TestMat_entry_C.composition))
+        with open('./num_Lines.txt', 'r') as out_file:
+            numLinesO = out_file.readlines()
+            numLines = numLinesO[0]
+            numLines = int(numLines)
 
-    return pd_C, energy_per_atom_C, hull_energy_C, energy_above_hull_C
+        numO = 0
+        numC = 0
+        holder = [0 for i in range(numLines)]
 
+        with open('composition.txt', 'r') as out_file:
+            holderOut = out_file.readlines()
+            for k in range(0, numLines):
+                holder[k] = holderOut[k]
+                holder[k] = holder[k].replace('\n', 'Ba8Zr8O24')
 
-# Condition X
-def calculate_phase_diagram_condition_X(entriesTotal_X, entriesGases_X, locked_Chem_Potential_X, TestMat_entry_X):
-    """
-    Calculate the phase diagram and energy above the hull for Condition X (CO2-rich environment).
+                if holder[k] == 'C':
+                    numCs = holderOut[k + 1]
+                    numCs = str(numCs.replace('\n', 'Ba8Zr8O24'))
+                    numCs = int(numCs)
+                elif holder[k] == 'O':
+                    numOs = holderOut[k + 1]
+                    numOs = str(numOs.replace('\n', 'Ba8Zr8O24'))
+                    numOs = int(numOs)
 
-    Args:
-        entriesTotal_X (list): List of ComputedEntry objects for Condition X.
-        entriesGases_X (list): List of ComputedEntry objects for gases under Condition X.
-        locked_Chem_Potential_X (dict): Locked chemical potentials for Condition X.
-        TestMat_entry_X (ComputedEntry): ComputedEntry object for the material under Condition X.
+        C_exist_check = 'numC' in locals()
+        O_exist_check = 'numO' in locals()
 
-    Returns:
-        tuple: Phase diagram for Condition X, energy per atom, formation energy, and energy above hull.
-    """
+        if not C_exist_check:
+            numC = 0
 
-    # TODO: We need to split materials by using "split_composition.sh".
+        if not O_exist_check:
+            numO = 0
 
-    # Filter out CO, X, and O2 from entriesTotal_X
-    eliminate_X = ['CO', 'X', 'O2']
-    all_entries_X = list(filter(lambda e: e.composition.reduced_formula not in eliminate_X, entriesTotal_X))
+        if numC == 0 and numO == 0:
+            all_entries[j] = CurrentEntry
+        elif numC > 0 and numO == 0:
+            all_entries[j] = CurrentEntry
+        elif numC == 0 and numO > 0:
+            all_entries[j] = CurrentEntry
+        elif numC > 0 and numO < 2:
+            all_entries[j] = CurrentEntry
+        elif numC > 0 and numO > 0:
+            numX = 0
+            Mod_Comp = 'Ba'
+            if 2 * numC == numO:
+                numX = numC
+                g = 1
+                while g < numLines + 1:
+                    if holder[g-1] == 'C':
+                        Mod_Comp = Mod_Comp + 'X' + str(numX)
+                        g += 2
+                    elif holder[g-1] == 'O':
+                        g += 2
+                    else:
+                        Mod_Comp = holder[g-1] + holder[g] + Mod_Comp
+                        g += 2
+            elif 2 * numC > numO:
+                while True:
+                    numO -= 2
+                    if numO < 0:
+                        numO += 2
+                        break
+                    numX += 1
+                    numC -= 1
+                g = 1
+                while g < numLines + 1:
+                    if holder[g-1] == 'C':
+                        Mod_Comp = Mod_Comp + 'X' + str(numX)
+                        Mod_Comp = Mod_Comp + 'C' + str(numC)
+                        g += 2
+                    elif holder[g-1] == 'O':
+                        if numO == 0:
+                            g += 2
+                        elif numO > 0:
+                            Mod_Comp = Mod_Comp + 'O' + str(numO)
+                            g += 2
+                    else:
+                        Mod_Comps = holder[g-1] + holder[g] + Mod_Comp
+                        g += 2
+            elif 2 * numC < numO:
+                numX = numC
+                numO = numO - 2 * numC
+                g = 1
+                while g < numLines + 1:
+                    if holder[g-1] == 'C':
+                        Mod_Comp = Mod_Comp + 'X'
+                        Mod_Comp = Mod_Comp + str(numC)
+                        g += 2
+                    elif holder[g-1] == 'O':
+                        Mod_Comp = Mod_Comp + 'O'
+                        Mod_Comp = Mod_Comp + str(numO)
+                        g += 2
+                    else:
+                        Mod_Comp = holder[g-1] + holder[g] + Mod_Comp
+                        g += 2
 
-    # Add back entries for Condition X
-    entries_VASP_X = [TestMat_entry_X]
-    all_entries_X += entries_VASP_X + entriesGases_X
+                energyEntry = CurrentEntry.energy
+                make_Mod_Entry = ComputedEntry(Mod_Comp, energyEntry)
+                all_entries[j] = make_Mod_Entry
 
-    # Create phase diagram for Condition X
-    pd_X = GrandPotentialPhaseDiagram(all_entries_X, locked_Chem_Potential_X)
+    ################################### CO(Element Z) Checks ###################################################
 
-    # One should use number of atoms without O, because O atom energy is subtracted from entry
-    num_atoms_without_O = TestMat_entry_X.composition.num_atoms - TestMat_entry_X.composition["O"]
+    for j in range(0, len(all_entries)):
 
-    energy_per_atom_X = TestMat_entry_X.energy / num_atoms_without_O
-    hull_energy_X = pd_X.get_hull_energy(TestMat_entry_X.composition) / num_atoms_without_O
-    energy_above_hull_X = (TestMat_entry_X.energy / num_atoms_without_O
-                           - pd_X.get_hull_energy_per_atom(TestMat_entry_C.composition))
+        CurrentEntry = all_entries[j]
+        get_Composition = CurrentEntry.composition
 
-    return pd_X, energy_per_atom_X, hull_energy_X, energy_above_hull_X
+        with open('composition.txt', 'w') as out_file:
+            originalLine = str(get_Composition)
+            fixedLine1 = originalLine.replace('\n', 'Ba8Zr8O24')
+            fixedLine2 = re.sub("[A-Za-z]+", lambda ele: " " + ele[0] + " ", fixedLine1)
+            print(fixedLine2, file=out_file)
+
+        subprocess.run(split_composition)
+
+        with open('./num_Lines.txt', 'r') as out_file:
+            numLinesO = out_file.readlines()
+            numLines = numLinesO[0]
+            numLines = int(numLines)
+
+        numO = 0
+        numC = 0
+        holder = [0 for chi in range(numLines)]
+
+        with open('composition.txt', 'r') as out_file:
+            holderOut = out_file.readlines()
+
+            for k in range(0, numLines):
+                holder[k] = holderOut[k]
+                holder[k] = holder[k].replace('\n', 'Ba8Zr8O24')
+
+                if holder[k] == 'C':
+                    numCs = holderOut[k + 1]
+                    numCs = str(numCs.replace('\n', 'Ba8Zr8O24'))
+                    numCs = int(numCs)
+                elif holder[k] == 'O':
+                    numOs = holderOut[k + 1]
+                    numOs = str(numOs.replace('\n', 'Ba8Zr8O24'))
+                    numOs = int(numOs)
+
+            C_exist_check = 'numC' in locals()
+            O_exist_check = 'numO' in locals()
+
+            if not C_exist_check:
+                numC = 0
+
+            if not O_exist_check:
+                numO = 0
+
+            if numC > 0 and numO == 0:
+                numZ = 0
+                Mod_Comp = 'Ba8Zr8O24'
+                if numC == numO:
+                    numZ = numC
+                    g = 1
+                    while g < numLines+1:
+                        if holder[g-1] == 'C':
+                            Mod_Comp = Mod_Comp + 'Z' + str(numZ)
+                            g += 2
+                        elif holder[g-1] == 'O':
+                            g += 2
+                        else:
+                            Mod_Comp = holder[g-1]+holder[g]+Mod_Comp
+                            g += 2
+                elif numC > numO:
+                    while True:
+                        numC -= 1
+                        if numC < 0:
+                            numC += 1
+                            break
+                        numZ += 1
+                        numO -= 1
+                    g = 1
+                    while g < numLines+1:
+                        if holder[g-1] == 'C':
+                            Mod_Comp = Mod_Comp + 'Z' + str(numZ)
+                            Mod_Comp = Mod_Comp + 'C' + str(numC)
+                            g += 2
+                        elif holder[g-1] == 'O':
+                            if numO == 0:
+                                g += 2
+                            elif numO > 0:
+                                Mod_Comp = Mod_Comp + 'O' + str(numO)
+                                g += 2
+                        else:
+                            Mod_Comps = holder[g-1]+holder[g]+Mod_Comp
+                            g += 2
+
+                    energyEntry = CurrentEntry.energy
+                    make_Mod_Entry = ComputedEntry(Mod_Comp, energyEntry)
+                    all_entries[j] = make_Mod_Entry
+                    print(all_entries[j])
+
+    # --- Gas Phase Correction CO2 ---
+
+    CO_entries = [e for e in all_entries if e.composition.reduced_formula == 'CO']
+    CO2_entries = [e for e in all_entries if e.composition.reduced_formula == 'X']
+    O2_entries = [e for e in all_entries if e.composition.reduced_formula == 'O2']
+
+    eliminate = ["CO", "X", "O2"]
+    all_entries = list(filter(lambda e: e.composition.reduced_formula not in eliminate, all_entries))
+
+    input_entry = ComputedEntry(input_entry.composition, input_entry.energy)
+
+    entries_VASP = [input_entry]
+    all_entries = all_entries + entries_VASP + gas_entries
+
+    # --- Calculate Convex Hull under Environmental Conditions ---
+    pd = GrandPotentialPhaseDiagram(all_entries, chempot)
+
+    num_O = input_entry.composition["O"]
+    num_wo_O = input_entry.composition.num_atoms - num_O
+
+    comp = Composition({el: input_entry.composition[el]
+                        for el in input_entry.composition.elements if el != Element("O")})
+
+    input_wo_O = ComputedEntry(comp, input_entry.energy + chempot["O"] * num_O)
+
+    e_per_atom = input_entry.energy / input_entry.composition.num_atoms
+    e_hull = pd.get_hull_energy(input_wo_O.composition)
+    e_hull_per_atom = pd.get_hull_energy_per_atom(input_wo_O.composition)
+    e_above_hull_per_atom = input_entry.energy / num_wo_O - e_hull_per_atom
+
+    return pd, e_per_atom, e_hull, e_hull_per_atom, e_above_hull_per_atom

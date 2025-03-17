@@ -12,8 +12,8 @@ do
     i=$(echo $line | wc -w)
 done < "$input"
 
-# Write the number of words to num_Lines.txt
-echo $i > num_Lines.txt
+# Write the number of words to num_lines.txt
+echo $i > num_lines.txt
 
 # Use awk to extract each word from the line and store it in the holder array
 declare -a holder
