@@ -13,6 +13,7 @@ setup(
     long_description_content_type="text/markdown",
     url="",
     packages=find_packages(),
+    package_data={"stability": ["convex_hull/*.sh"]},
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
