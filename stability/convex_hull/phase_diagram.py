@@ -82,7 +82,7 @@ def prepare_material_entries(api, input_comp, input_energy):
     input_comp = Composition(input_comp)
 
     # empirical correction for O atom; see SI S2.2 in the paper
-    input_energy += -0.687 * input_comp["O"]
+    # input_energy += -0.687 * input_comp["O"]
 
     # Define computed entries for the material under conditions A, C and X
     energy_A = input_energy - O_energy_A * input_comp["O"]
@@ -172,9 +172,11 @@ def calculate_phase_diagram_condition_X(all_entries=None, gas_entries=None, chem
     from pymatgen.entries.computed_entries import ComputedEntry
     from pymatgen.analysis.phase_diagram import GrandPotPDEntry, PDEntry, PDPlotter, PhaseDiagram
     from pymatgen.entries.compatibility import MaterialsProject2020Compatibility
+    from pathlib import Path
 
     # Modify composition to account for CO2 (as X)
-    split_composition = pathlib.Path("../stability/convex_hull/split_composition.sh")
+    current_dir = Path(__file__).parent.absolute()
+    split_composition = current_dir / "split_composition.sh"
 
     for j in range(0, len(all_entries)):
         CurrentEntry = all_entries[j]

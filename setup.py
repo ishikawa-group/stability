@@ -4,10 +4,10 @@ with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 setup(
-    name="stability-analysis",
-    version="0.1.0",
-    author="Ishi",
-    author_email="",
+    name="stability",
+    version="0.0.1",
+    author="Ishikawa-lab@ScienceTokyo",
+    author_email="ishikawa.a.ai@m.titech.ac.jp",
     description="Material stability analysis tools",
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -27,12 +27,6 @@ setup(
         "scipy>=1.11.3",
         "matplotlib>=3.8.1",
         "pymatgen>=2023.11.12",
+        "mp_api>=0.45.3",
     ],
-    extras_require={
-        "dev": [
-            "pytest>=7.4.3",
-            "black",
-            "flake8",
-        ],
-    }
 )

@@ -8,10 +8,10 @@ This module provides functionality for:
 
 from .do_vasp_calculation import do_vasp_calculation
 from .get_energy_above_hull import get_energy_above_hull
-from .phase_diagram import PhaseDiagram
+from .phase_diagram import initialize_global_variables, prepare_material_entries, calculate_phase_diagram_condition, calculate_phase_diagram_condition_X
 
 __all__ = [
     "do_vasp_calculation",
     "get_energy_above_hull",
-    "PhaseDiagram",
+    "initialize_global_variables", "prepare_material_entries", "calculate_phase_diagram_condition", "calculate_phase_diagram_condition_X"
 ]
