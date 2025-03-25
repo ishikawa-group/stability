@@ -4,8 +4,8 @@ def get_energy_above_hull(atoms=None, energy=None):
     import warnings
     from stability.convex_hull.phase_diagram import initialize_global_variables
     from stability.convex_hull.phase_diagram import prepare_material_entries
-    from stability.convex_hull.phase_diagram import calculate_phase_diagram_condition
-    from stability.convex_hull.phase_diagram import calculate_phase_diagram_condition_X
+    from stability.convex_hull.phase_diagram import calculate_phase_diagram
+    from stability.convex_hull.phase_diagram import calculate_phase_diagram_CO2
 
     # Ignore warnings
     warnings.filterwarnings("ignore")
@@ -34,15 +34,15 @@ def get_energy_above_hull(atoms=None, energy=None):
     # --- Calculate phase diagrams and energies for each condition
     # anode
     pd_A, e_per_atom_A, e_hull_A, e_hull_per_atom_A, e_above_hull_per_atom_A \
-        = calculate_phase_diagram_condition(all_entries_A, gas_entries_A, chempot_A, input_A)
+        = calculate_phase_diagram(all_entries_A, gas_entries_A, chempot_A, input_A)
 
     # cathode
     pd_C, e_per_atom_C, e_hull_C, e_hull_per_atom_C, e_above_hull_per_atom_C \
-        = calculate_phase_diagram_condition(all_entries_C, gas_entries_C, chempot_C, input_C)
+        = calculate_phase_diagram(all_entries_C, gas_entries_C, chempot_C, input_C)
 
     # CO2
     pd_X, e_per_atom_X, e_hull_X, e_hull_per_atom_X, e_above_hull_per_atom_X \
-        = calculate_phase_diagram_condition_X(all_entries_X, gas_entries_X, chempot_X, input_X)
+        = calculate_phase_diagram_CO2(all_entries_X, gas_entries_X, chempot_X, input_X)
 
     # --- Print results for condition A (Hydrogen-rich)
     print("Condition A (Hydrogen-rich):")
