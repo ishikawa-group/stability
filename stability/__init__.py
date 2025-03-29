@@ -13,11 +13,36 @@ Stabilityは、材料の安定性を解析するためのPythonパッケージ�
 __version__ = "0.1.0"
 
 from . import convex_hull
-from . import pourbaix
-from .convex_hull import get_energy_above_hull
+from .convex_hull import (
+    do_vasp_calculation,
+    get_energy_above_hull,
+    initialize_global_variables,
+    prepare_material_entries,
+    calculate_phase_diagram,
+    calculate_phase_diagram_CO2
+)
 
-__all__ = [
-    "convex_hull",
-    "pourbaix",
-    "get_energy_above_hull"
-]
+try:
+    from . import pourbaix
+    from .pourbaix.pourbaix import PourBaixDiagram
+    __all__ = [
+        "convex_hull",
+        "pourbaix",
+        "PourBaixDiagram",
+        "do_vasp_calculation",
+        "get_energy_above_hull",
+        "initialize_global_variables",
+        "prepare_material_entries",
+        "calculate_phase_diagram",
+        "calculate_phase_diagram_CO2"
+    ]
+except (ImportError, ValueError):
+    __all__ = [
+        "convex_hull",
+        "do_vasp_calculation",
+        "get_energy_above_hull",
+        "initialize_global_variables",
+        "prepare_material_entries",
+        "calculate_phase_diagram",
+        "calculate_phase_diagram_CO2"
+    ]

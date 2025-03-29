@@ -1,5 +1,5 @@
 from ase.io import read
-from stability.convex_hull import *
+from stability import get_energy_above_hull
 import warnings
 
 warnings.filterwarnings("ignore")
@@ -10,14 +10,14 @@ warnings.filterwarnings("ignore")
 # bulk = read("Cs1Ba7Nb8O24.vasp")  # anode: 0.261439645, cathode: 0.663939645, CO2: 0.680963907
 # bulk = read("Cs1Sr7Nb8O24.vasp")  # anode: 0.363453727, cathode: 0.765953727, CO2: 0.765953727
 # bulk = read("Cs1Sr7V8O24.vasp")   # anode: 0.299563552, cathode: 0.561660693, CO2: 0.561660693
-bulk = read("Rb1Ba7Nb8O24.vasp")  # anode: 0.216330437, cathode: 0.618830437, CO2: 0.642664404
+bulk = read("tests/Rb1Ba7Nb8O24.vasp")  # anode: 0.216330437, cathode: 0.618830437, CO2: 0.642664404
 
 # bulk = bulk*[2, 2, 2]  # needed when loading BaZrO3.cif (to make Ba8Zr8O24)
 
 do_vasp = False
 
 if do_vasp:
-    convex_hull.do_vasp_calculation(atoms=bulk)
+    do_vasp_calculation(atoms=bulk)
 
 # -- energy values from author's CSV file (corrected)
 # energy = -339.945046   # Ba1_Sr7_Nb8_O24
@@ -28,7 +28,7 @@ if do_vasp:
 # energy = -315.246376   # Cs1_Sr7_V8_O24
 energy = -339.378272   # Rb1_Ba7_Nb8_O24
 
-e_above_hull_A, e_above_hull_C, e_above_hull_X = convex_hull.get_energy_above_hull(atoms=bulk, energy=energy)
+e_above_hull_A, e_above_hull_C, e_above_hull_X = get_energy_above_hull(atoms=bulk, energy=energy)
 
 print("\n")
 print(f"energy above hull at anode condition (per atom, eV): {e_above_hull_A:8.6f}")
