@@ -13,4 +13,4 @@ dependencies = [
 ]
 
 [tool.setuptools]
-packages = ["stability"]
+packages = ["stability", "stability.convex_hull", "stability.pourbaix"]
