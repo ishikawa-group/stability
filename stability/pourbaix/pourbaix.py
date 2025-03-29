@@ -1,7 +1,8 @@
+import os
 from pymatgen.ext.matproj import MPRester
 from pymatgen.analysis.pourbaix_diagram import PourbaixDiagram, PourbaixPlotter
 
-API = "cmvjQza1i5mk7Gt5uP"
+API = os.getenv["MY_API"]
 
 mpr = MPRester(API)
 entries = mpr.get_pourbaix_entries(["Cu"])
