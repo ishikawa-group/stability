@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "stability"
+version = "0.1.0"
+dependencies = [
+    "pymatgen",
+    "ase",
+    "numpy",
+    "mp-api",
+]
+
+[tool.setuptools]
+packages = ["stability"]
