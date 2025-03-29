@@ -5,7 +5,7 @@ under different conditions (anode, cathode, and CO2).
 """
 
 from ase.io import read
-from stability import get_energy_above_hull
+from stability.convex_hull.get_energy_above_hull import get_energy_above_hull
 import warnings
 import os
 from pathlib import Path
