@@ -1,5 +1,5 @@
 from ase.io import read
-from stability import convex_hull
+from stability.convex_hull import *
 import warnings
 
 warnings.filterwarnings("ignore")
