@@ -14,3 +14,4 @@ dependencies = [
 
 [tool.setuptools]
 packages = ["stability", "stability.convex_hull", "stability.pourbaix"]
+package-data = {"stability.convex_hull" = ["*.sh"]}
