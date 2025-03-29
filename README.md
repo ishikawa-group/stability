@@ -3,15 +3,11 @@
 * This package provides advanced functionality for analyzing material stability through formation energy calculations, convex hull analysis, and phase diagram construction.
 
 ## Features
-### 1. Formation Energy Calculations
-- Computes formation energies from first-principles calculations
-- Supports VASP integration for energy calculations
-- Handles multiple atomic species and complex chemical compositions
-
-### 2. Energy Above Hull Calculations
+### 1. Energy Above Hull Calculations
 * Analyzes stability under three distinct environmental conditions:
 - **Hydrogen-rich condition (A)**: Suitable for analyzing materials in reducing environments
 - **Oxygen-rich condition (C)**: For oxidizing conditions analysis
+- **CO2-rich condition (X)**: For analyzing stability in CO2-rich environments
 
 ### 3. Phase Diagram Analysis
 - Constructs grand potential phase diagrams
