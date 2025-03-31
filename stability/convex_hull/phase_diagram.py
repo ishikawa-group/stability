@@ -65,7 +65,7 @@ def initialize_global_variables():
     chempot_X = {"X": CO2_energy_X, "O": O_energy_X}
 
 
-def prepare_material_entries(api, input_comp, input_energy):
+def prepare_material_entries(api, input_comp, input_energy, correct_O_energy=False):
     """
     Prepare material entries and fetch entries from the Materials Project for a given material.
 
@@ -85,7 +85,8 @@ def prepare_material_entries(api, input_comp, input_energy):
     input_comp = Composition(input_comp)
 
     # empirical correction for O atom; see SI S2.2 in the paper
-    # input_energy += -0.687 * input_comp["O"]
+    if correct_O_energy:
+        input_energy += -0.687 * input_comp["O"]
 
     # Define computed entries for the material under conditions A, C and X
     energy_A = input_energy - O_energy_A * input_comp["O"]

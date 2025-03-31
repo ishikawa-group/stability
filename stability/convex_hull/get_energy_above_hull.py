@@ -31,7 +31,7 @@ def get_energy_above_hull(atoms=None, calculator=None, energy=None):
             atoms.calc = PESCalculator(potential=potential)
             input_energy = atoms.get_potential_energy()
 
-        input_energy = atoms.get_potential_energy()        
+        input_energy = atoms.get_potential_energy()
 
     print(f"input_composition: {input_comp}")
     print(f"input_energy: {input_energy:8.6f}")
@@ -45,7 +45,7 @@ def get_energy_above_hull(atoms=None, calculator=None, energy=None):
 
     # Prepare material entries
     (all_entries_A, all_entries_C, all_entries_X, input_A, input_C, input_X) \
-        = prepare_material_entries(api, input_comp, input_energy)
+        = prepare_material_entries(api, input_comp, input_energy, correct_O_energy=True)
 
     # --- Calculate phase diagrams and energies for each condition
     # anode
