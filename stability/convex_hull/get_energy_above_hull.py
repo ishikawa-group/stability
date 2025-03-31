@@ -19,7 +19,7 @@ def get_energy_above_hull(atoms=None, calculator=None, energy=None):
         if energy is not None:
             input_energy = energy
         else:
-            raise ValueError("Error: either calculator or energy should be given."))
+            raise ValueError("Error: either calculator or energy should be given.")
     else:
         if "vasp" in calculator:
             raise ValueError("vasp not implemented")
