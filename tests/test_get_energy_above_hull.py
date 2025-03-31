@@ -7,10 +7,12 @@ import numpy as np
 TEST_STRUCTURE = "tests/Rb1Ba7Nb8O24.vasp"
 TEST_ENERGY = -339.378272
 
+
 @pytest.fixture
 def test_atoms():
     """テスト用の構造データを読み込む"""
     return read(TEST_STRUCTURE)
+
 
 def test_input_validation():
     """入力パラメータのバリデーションテスト"""
@@ -22,6 +24,7 @@ def test_input_validation():
     with pytest.raises(TypeError):
         # energyがNoneの場合
         get_energy_above_hull(atoms=atoms, energy=None)
+
 
 def test_get_energy_above_hull_basic(test_atoms):
     """基本的な機能のテスト"""
@@ -41,6 +44,7 @@ def test_get_energy_above_hull_basic(test_atoms):
     np.testing.assert_almost_equal(e_above_hull_C, expected_C, decimal=6)
     np.testing.assert_almost_equal(e_above_hull_X, expected_X, decimal=6)
 
+
 def test_return_type(test_atoms):
     """戻り値の型とサイズのテスト"""
     result = get_energy_above_hull(atoms=test_atoms, energy=TEST_ENERGY)
@@ -53,6 +57,7 @@ def test_return_type(test_atoms):
     for value in result:
         assert isinstance(value, float)
 
+
 def test_energy_above_hull_positive(test_atoms):
     """hull energyが非負であることの確認"""
     e_above_hull_A, e_above_hull_C, e_above_hull_X = get_energy_above_hull(
@@ -63,6 +68,7 @@ def test_energy_above_hull_positive(test_atoms):
     assert e_above_hull_A >= 0
     assert e_above_hull_C >= 0
     assert e_above_hull_X >= 0
+
 
 def test_chemical_formula(test_atoms):
     """化学式の取得が正しく動作することの確認"""

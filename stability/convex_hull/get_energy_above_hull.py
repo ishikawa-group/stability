@@ -1,4 +1,4 @@
-def get_energy_above_hull(atoms=None, energy=None):
+def get_energy_above_hull(atoms=None, calculator="m3gnet"):
     import sys
     import os
     import warnings
@@ -10,12 +10,21 @@ def get_energy_above_hull(atoms=None, energy=None):
     # Ignore warnings
     warnings.filterwarnings("ignore")
 
-    sys.path.append("../")
-
     # Set test material and energy
     api = os.getenv("MAPI")
     input_comp = atoms.get_chemical_formula()
-    input_energy = energy
+
+    # calculator energy here
+    if "vasp" in calculator:
+        raise ValueError("vasp not implemented")
+    elif "m3gnet" in calculator:
+        import matgl
+        from matgl.ext.ase import PESCalculator
+
+        potential = matgl.load_model("M3GNet-MP-2021.2.8-PES")
+        atoms.calc = PESCalculator(potential=potential)
+
+    input_energy = atoms.get_potential_energy()
 
     print(f"input_composition: {input_comp}")
     print(f"input_energy: {input_energy:8.6f}")

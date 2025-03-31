@@ -52,6 +52,7 @@ MATERIALS = [
     }
 ]
 
+
 def analyze_material(material, tests_dir):
     """指定された材料のhull energyを解析
 
@@ -74,6 +75,7 @@ def analyze_material(material, tests_dir):
     )
     return e_above_hull_A, e_above_hull_C, e_above_hull_X
 
+
 def main():
     """
     複数の材料に対してhull energyを計算し、結果を表示
@@ -91,6 +93,7 @@ def main():
         if result:
             e_above_hull_A, e_above_hull_C, e_above_hull_X = result
             print(f"{material['name']:15} {e_above_hull_A:10.6f} {e_above_hull_C:10.6f} {e_above_hull_X:10.6f}")
+
 
 if __name__ == "__main__":
     main()
