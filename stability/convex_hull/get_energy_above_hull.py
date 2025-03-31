@@ -1,4 +1,4 @@
-def get_energy_above_hull(atoms=None, calculator="m3gnet"):
+def get_energy_above_hull(atoms=None, calculator=None, energy=None):
     import sys
     import os
     import warnings
@@ -15,16 +15,23 @@ def get_energy_above_hull(atoms=None, calculator="m3gnet"):
     input_comp = atoms.get_chemical_formula()
 
     # calculator energy here
-    if "vasp" in calculator:
-        raise ValueError("vasp not implemented")
-    elif "m3gnet" in calculator:
-        import matgl
-        from matgl.ext.ase import PESCalculator
+    if calculator is None:
+        if energy is not None:
+            input_energy = energy
+        else:
+            raise ValueError("Error: either calculator or energy should be given."))
+    else:
+        if "vasp" in calculator:
+            raise ValueError("vasp not implemented")
+        elif "m3gnet" in calculator:
+            import matgl
+            from matgl.ext.ase import PESCalculator
 
-        potential = matgl.load_model("M3GNet-MP-2021.2.8-PES")
-        atoms.calc = PESCalculator(potential=potential)
+            potential = matgl.load_model("M3GNet-MP-2021.2.8-PES")
+            atoms.calc = PESCalculator(potential=potential)
+            input_energy = atoms.get_potential_energy()
 
-    input_energy = atoms.get_potential_energy()
+        input_energy = atoms.get_potential_energy()        
 
     print(f"input_composition: {input_comp}")
     print(f"input_energy: {input_energy:8.6f}")

@@ -10,6 +10,8 @@ dependencies = [
     "ase",
     "numpy",
     "mp-api",
+    "matgl",
+    "PyYAML",
 ]
 
 [tool.setuptools]

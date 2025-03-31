@@ -1,0 +1,22 @@
+materials:
+  - name: "Ba1Sr7Nb8O24"
+    energy: -339.945046
+    file: "vasp_files/Ba1Sr7Nb8O24.vasp"
+  - name: "Ba1Sr7V8O24"
+    energy: -320.169744
+    file: "vasp_files/Ba1Sr7V8O24.vasp"
+  - name: "Ca1La7Fe8O24"
+    energy: -331.534147
+    file: "vasp_files/Ca1La7Fe8O24.vasp"
+  - name: "Cs1Ba7Nb8O24"
+    energy: -338.659999
+    file: "vasp_files/Cs1Ba7Nb8O24.vasp"
+  - name: "Cs1Sr7Nb8O24"
+    energy: -337.02237
+    file: "vasp_files/Cs1Sr7Nb8O24.vasp"
+  - name: "Cs1Sr7V8O24"
+    energy: -315.246376
+    file: "vasp_files/Cs1Sr7V8O24.vasp"
+  - name: "Rb1Ba7Nb8O24"
+    energy: -339.378272
+    file: "vasp_files/Rb1Ba7Nb8O24.vasp"
